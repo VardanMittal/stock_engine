@@ -21,7 +21,7 @@
 | Day | Date       | Principle             | Refactor Target                                                       | Status |
 | --- | ---------- | --------------------- | --------------------------------------------------------------------- | ------ |
 | 1   | Sept 12    | Single Responsibility | Split `DataFetcher` into Fetch/Parse/Cache                            | ☑      |
-| 2   | Sept 13    | Open/Closed           | `Indicator` base class — new indicators without editing existing code | ☐      |
+| 2   | Sept 13    | Open/Closed           | `Indicator` base class — new indicators without editing existing code | ☑      |
 | 3   | Sept 14    | Liskov Substitution   | Ensure `PredictionStrategy` subclasses are swappable                  | ☐      |
 | 4   | Sept 15    | Interface Segregation | Split bloated `Engine` into `Trainable`/`Predictable`/`Backtestable`  | ☐      |
 | 5   | Sept 16    | Dependency Inversion  | C++ engine adapter depends on abstract interface, not concrete class  | ☐      |
@@ -102,11 +102,10 @@
 
 _Fill in after each session. Keep entries short — 2-3 lines max._
 
-| Date    | Pattern/Principle | Problem It Solved                                                                   | Where Used in Project                                        | Gotcha / Note                                                                                                  |
-| ------- | ----------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| Sept 12 | SRP               | DataFetcher mixed IO+parsing+caching — any change to one risked breaking the others | python/ingestion/ split into fetcher.py, parser.py, cache.py | orchestrator (main.py) is allowed to know about all three — SRP applies per-class, not per-file-that-uses-them |
-
----
+| Date    | Pattern/Principle | Problem It Solved                                                                   | Where Used in Project                                        | Gotcha / Note                                                                                                    |
+| ------- | ----------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Sept 12 | SRP               | DataFetcher mixed IO+parsing+caching — any change to one risked breaking the others | python/ingestion/ split into fetcher.py, parser.py, cache.py | orchestrator (main.py) is allowed to know about all three — SRP applies per-class, not per-file-that-uses-them   |
+| Sept 13 | OCP               | Adding indicators would've meant editing a growing if/elif block                    | python/indicators/ — base.py + sma.py, ema.py, rsi.py        | Abstract base class in Python needs ABC + @abstractmethod, or nothing forces subclasses to implement calculate() |
 
 ## Notes
 
