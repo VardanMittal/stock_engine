@@ -4,6 +4,8 @@ from ingestion.cache import DataCache
 from indicators.sma import SimpleMovingAverage
 from indicators.ema import ExponentialMovingAverage
 from indicators.rsi import RSI
+from strategies.ma_crossover import MovingAverageCrossoverStrategy
+from strategies.threshold import ThresholdStrategy
 
 def get_stock_data(filepath: str):
     cache = DataCache()
@@ -31,3 +33,11 @@ if __name__ == "__main__":
 
     for ind in indicators:
         print(f"{ind.name()}: {ind.calculate(closes):.2f}")
+
+    strategies = [
+        MovingAverageCrossoverStrategy(short_window=2, long_window=3),
+        ThresholdStrategy(),
+    ]
+
+    for strategy in strategies:
+        print(f"{strategy.name()}: {strategy.predict(closes)}")
