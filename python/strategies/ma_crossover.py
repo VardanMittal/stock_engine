@@ -1,6 +1,6 @@
-from strategies.base import PredictionStrategy
+from strategies.interfaces import Predictable
 
-class MovingAverageCrossoverStrategy(PredictionStrategy):
+class MovingAverageCrossoverStrategy(Predictable):
 
     def __init__(self, short_window:int=3, long_window:int=5) -> None:
         self.short_window = short_window

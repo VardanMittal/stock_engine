@@ -1,6 +1,5 @@
-from strategies.base import PredictionStrategy
-
-class ThresholdStrategy(PredictionStrategy):
+from strategies.interfaces import Predictable
+class ThresholdStrategy(Predictable):
     """
     Naive strategy: buy if price rose >1% 
     since last close, sell if it fell >1%.

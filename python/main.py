@@ -6,6 +6,7 @@ from indicators.ema import ExponentialMovingAverage
 from indicators.rsi import RSI
 from strategies.ma_crossover import MovingAverageCrossoverStrategy
 from strategies.threshold import ThresholdStrategy
+from strategies.lstm_stub import LSTMStrategy
 
 def get_stock_data(filepath: str):
     cache = DataCache()
@@ -37,6 +38,7 @@ if __name__ == "__main__":
     strategies = [
         MovingAverageCrossoverStrategy(short_window=2, long_window=3),
         ThresholdStrategy(),
+        LSTMStrategy(),  # untrained — will just return "hold"
     ]
 
     for strategy in strategies:
