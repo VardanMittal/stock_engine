@@ -1,0 +1,5 @@
+{
+  "initial_cash": 15000.0,
+  "default_strategy": "ma_crossover",
+  "log_level": "DEBUG"
+}

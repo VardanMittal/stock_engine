@@ -16,24 +16,23 @@
 
 ---
 
-## Phase 0 — SOLID Foundations (Sept 12–18)
+## Phase 0 — SOLID Foundations (Sept 12–16)
 
-| Day | Date       | Principle             | Refactor Target                                                       | Status |
-| --- | ---------- | --------------------- | --------------------------------------------------------------------- | ------ |
-| 1   | Sept 12    | Single Responsibility | Split `DataFetcher` into Fetch/Parse/Cache                            | ☑      |
-| 2   | Sept 13    | Open/Closed           | `Indicator` base class — new indicators without editing existing code | ☑      |
-| 3   | Sept 14    | Liskov Substitution   | Ensure `PredictionStrategy` subclasses are swappable                  | ☑      |
-| 4   | Sept 15    | Interface Segregation | Split bloated `Engine` into `Trainable`/`Predictable`/`Backtestable`  | ☑      |
-| 5   | Sept 16    | Dependency Inversion  | C++ engine adapter depends on abstract interface, not concrete class  | ☐      |
-| 6-7 | Sept 17–18 | Review/buffer         | Re-read week's code, tighten any rushed refactor                      | ☐      |
+| Day | Date    | Principle             | Refactor Target                                                       | Status |
+| --- | ------- | --------------------- | --------------------------------------------------------------------- | ------ |
+| 1   | Sept 12 | Single Responsibility | Split `DataFetcher` into Fetch/Parse/Cache                            | ☑      |
+| 2   | Sept 13 | Open/Closed           | `Indicator` base class — new indicators without editing existing code | ☑      |
+| 3   | Sept 14 | Liskov Substitution   | Ensure `PredictionStrategy` subclasses are swappable                  | ☑      |
+| 4   | Sept 15 | Interface Segregation | Split bloated `Engine` into `Trainable`/`Predictable`/`Backtestable`  | ☑      |
+| 5   | Sept 16 | Dependency Inversion  | C++ engine adapter depends on abstract interface, not concrete class  | ☑      |
 
 ---
 
-## Phase 1 — Creational Patterns (Sept 19 – Oct 9)
+## Phase 1 — Creational Patterns (Sept 17 – Sept 28)
 
 | Pattern          | Est. Days | Project Mapping                                | Status |
 | ---------------- | --------- | ---------------------------------------------- | ------ |
-| Singleton        | 1         | Config/logger manager, DB connection pool      | ☐      |
+| Singleton        | 1         | Config/logger manager, DB connection pool      | ☑      |
 | Factory Method   | 3         | `DataSource` objects (NSE API, CSV, yfinance)  | ☐      |
 | Abstract Factory | 3         | Indicator calculator families (Trend/Momentum) | ☐      |
 | Builder          | 3         | `BacktestConfig` step-by-step construction     | ☐      |
@@ -41,7 +40,7 @@
 
 ---
 
-## Phase 2 — Structural Patterns (Oct 10 – Oct 30)
+## Phase 2 — Structural Patterns (Sept 29 – Oct 15)
 
 | Pattern   | Est. Days | Project Mapping                                                | Status |
 | --------- | --------- | -------------------------------------------------------------- | ------ |
@@ -55,7 +54,7 @@
 
 ---
 
-## Phase 3 — Behavioral Core (Oct 31 – Nov 20)
+## Phase 3 — Behavioral Core (Oct 15 – Nov 4)
 
 | Pattern                 | Est. Days | Project Mapping                                               | Status |
 | ----------------------- | --------- | ------------------------------------------------------------- | ------ |
@@ -68,7 +67,7 @@
 
 ---
 
-## Phase 4 — Remaining Behavioral (Nov 21 – Dec 4)
+## Phase 4 — Remaining Behavioral (Nov 15 – Nov 28)
 
 | Pattern     | Est. Days | Project Mapping                                                      | Status |
 | ----------- | --------- | -------------------------------------------------------------------- | ------ |
@@ -80,7 +79,7 @@
 
 ---
 
-## Phase 5 — Advanced / Enterprise Patterns (Dec 5 – Dec 25)
+## Phase 5 — Advanced / Enterprise Patterns (Nov 29 – Dec 17)
 
 | Pattern            | Est. Days | Project Mapping                                            | Status |
 | ------------------ | --------- | ---------------------------------------------------------- | ------ |
@@ -102,13 +101,14 @@
 
 _Fill in after each session. Keep entries short — 2-3 lines max._
 
-| Date    | Pattern/Principle | Problem It Solved                                                                                                                | Where Used in Project                                                                                                                               | Gotcha / Note                                                                                                                                                     |
-| ------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sept 12 | SRP               | DataFetcher mixed IO+parsing+caching — any change to one risked breaking the others                                              | python/ingestion/ split into fetcher.py, parser.py, cache.py                                                                                        | orchestrator (main.py) is allowed to know about all three — SRP applies per-class, not per-file-that-uses-them                                                    |
-| Sept 13 | OCP               | Adding indicators would've meant editing a growing if/elif block                                                                 | python/indicators/ — base.py + sma.py, ema.py, rsi.py                                                                                               | Abstract base class in Python needs ABC + @abstractmethod, or nothing forces subclasses to implement calculate()                                                  |
-| Sept 14 | LSP               | A strategy subclass with a different return type/signature would silently break any caller looping over strategies               | python/strategies/ — base.py + ma_crossover.py, threshold.py                                                                                        | Insufficient data should return "hold", never raise — raising on valid-but-sparse input is itself an LSP violation (caller can't blindly call .predict() anymore) |
-| Sept 15 | ISP               | A single fat Engine interface would've forced rule-based strategies to implement dummy train()/backtest() methods they never use | python/strategies/interfaces.py — split into Predictable, Trainable, Backtestable                                                                   | Python allows multiple inheritance cleanly here (LSTMStrategy(Predictable, Trainable)) — this is exactly the scenario ISP is designed for                         |
-| Sept 16 | DIP               | AnalysisEngine calling a concrete engine class directly would mean rewriting it when the real C++ engine replaces the stub       | python/engine_bridge/interface.py (abstraction) + stub_engine.py (concrete) + analysis_engine.py (depends on abstraction, injected via constructor) | Constructor injection is the simplest DIP mechanism in Python — no DI framework needed for a project this size                                                    |
+| Date    | Pattern/Principle | Problem It Solved                                                                                                                | Where Used in Project                                                                                                                               | Gotcha / Note                                                                                                                                                                                                          |
+| ------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sept 12 | SRP               | DataFetcher mixed IO+parsing+caching — any change to one risked breaking the others                                              | python/ingestion/ split into fetcher.py, parser.py, cache.py                                                                                        | orchestrator (main.py) is allowed to know about all three — SRP applies per-class, not per-file-that-uses-them                                                                                                         |
+| Sept 13 | OCP               | Adding indicators would've meant editing a growing if/elif block                                                                 | python/indicators/ — base.py + sma.py, ema.py, rsi.py                                                                                               | Abstract base class in Python needs ABC + @abstractmethod, or nothing forces subclasses to implement calculate()                                                                                                       |
+| Sept 14 | LSP               | A strategy subclass with a different return type/signature would silently break any caller looping over strategies               | python/strategies/ — base.py + ma_crossover.py, threshold.py                                                                                        | Insufficient data should return "hold", never raise — raising on valid-but-sparse input is itself an LSP violation (caller can't blindly call .predict() anymore)                                                      |
+| Sept 15 | ISP               | A single fat Engine interface would've forced rule-based strategies to implement dummy train()/backtest() methods they never use | python/strategies/interfaces.py — split into Predictable, Trainable, Backtestable                                                                   | Python allows multiple inheritance cleanly here (LSTMStrategy(Predictable, Trainable)) — this is exactly the scenario ISP is designed for                                                                              |
+| Sept 16 | DIP               | AnalysisEngine calling a concrete engine class directly would mean rewriting it when the real C++ engine replaces the stub       | python/engine_bridge/interface.py (abstraction) + stub_engine.py (concrete) + analysis_engine.py (depends on abstraction, injected via constructor) | Constructor injection is the simplest DIP mechanism in Python — no DI framework needed for a project this size                                                                                                         |
+| Sept 17 | Singleton         | Config/logger would've been re-instantiated (re-parsing files, inconsistent log state) every time a module needed them           | python/config.py, python/logger.py                                                                                                                  | Singleton introduces global state — fine here since config/logging are genuinely global concerns, but don't reach for it for things like Portfolio or Strategy, where you actually want multiple independent instances |
 
 ## Notes
 

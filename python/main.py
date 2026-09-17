@@ -10,6 +10,9 @@ from strategies.lstm_stub import LSTMStrategy
 from engine_bridge.analysis_engine import AnalysisEngine
 from engine_bridge.stub_engine import StubEngine
 
+from config import Config
+from logger import Logger
+
 def get_stock_data(filepath: str):
     cache = DataCache()
     cached = cache.get(filepath)
@@ -52,3 +55,17 @@ if __name__ == "__main__":
     strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
     result = analysis.analyze(closes, strategy)
     print(f"Backtest result: {result}")
+
+    config = Config()
+    config2 = Config()  # "new" instance, but actually the same object
+    print(f"Same instance? {config is config2}")  # True
+
+    logger = Logger()
+    logger.log(f"Starting analysis with initial cash: {config.get('initial_cash')}")
+
+    engine = StubEngine()
+    analysis = AnalysisEngine(engine)
+    strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
+    result = analysis.analyze(closes, strategy)
+
+    logger.log(f"Backtest result: {result}")
