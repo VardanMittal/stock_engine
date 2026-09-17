@@ -7,6 +7,8 @@ from indicators.rsi import RSI
 from strategies.ma_crossover import MovingAverageCrossoverStrategy
 from strategies.threshold import ThresholdStrategy
 from strategies.lstm_stub import LSTMStrategy
+from engine_bridge.analysis_engine import AnalysisEngine
+from engine_bridge.stub_engine import StubEngine
 
 def get_stock_data(filepath: str):
     cache = DataCache()
@@ -43,3 +45,10 @@ if __name__ == "__main__":
 
     for strategy in strategies:
         print(f"{strategy.name()}: {strategy.predict(closes)}")
+
+    engine = StubEngine()
+    analysis = AnalysisEngine(engine)  # dependency injected here
+
+    strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
+    result = analysis.analyze(closes, strategy)
+    print(f"Backtest result: {result}")
