@@ -9,6 +9,7 @@ from strategies.threshold import ThresholdStrategy
 from strategies.lstm_stub import LSTMStrategy
 from engine_bridge.analysis_engine import AnalysisEngine
 from engine_bridge.stub_engine import StubEngine
+from ingestion.factory import DataSourceFactory
 
 from config import Config
 from logger import Logger
@@ -69,3 +70,8 @@ if __name__ == "__main__":
     result = analysis.analyze(closes, strategy)
 
     logger.log(f"Backtest result: {result}")
+
+    source = DataSourceFactory.create("csv", filepath="sample_data.csv")
+    print(source.describe())
+    raw = source.get_raw_data()
+    print(f"Got {len(raw)} characters of raw data")
