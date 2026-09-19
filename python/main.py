@@ -1,4 +1,3 @@
-from ingestion.fetcher import DataFetcher
 from ingestion.parser import DataParser
 from ingestion.cache import DataCache
 from indicators.sma import SimpleMovingAverage
@@ -14,22 +13,32 @@ from ingestion.factory import DataSourceFactory
 from config import Config
 from logger import Logger
 
-def get_stock_data(filepath: str):
+def get_stock_data(source_type: str, **source_kwargs):
+    """source_type and kwargs decide WHICH source, but everything below
+    this line is identical no matter what comes in — that's the payoff."""
+
+    cache_key = str(source_kwargs)  # simple cache key for now
     cache = DataCache()
-    cached = cache.get(filepath)
+    cached = cache.get(cache_key)
+
     if cached:
         print("Loaded from cache")
         return cached
 
-    fetcher = DataFetcher()
-    raw = fetcher.fetch_from_csv(filepath)
+    source = DataSourceFactory.create(source_type, **source_kwargs)
+    print(f"Fetching from: {source.describe()}")
+
+    raw = source.get_raw_data()
     parser = DataParser()
     rows = parser.parse_csv(raw)
-    cache.set(filepath, rows)
+
+    cache.set(cache_key, rows)
+    print(f"Fetched and parsed {len(rows)} rows")
     return rows
 
+
 if __name__ == "__main__":
-    data = get_stock_data("sample_data.csv")
+    data = get_stock_data("api", url="https://example.com/data.csv")
     closes = [float(row["close"]) for row in data]
 
     indicators = [
@@ -71,7 +80,7 @@ if __name__ == "__main__":
 
     logger.log(f"Backtest result: {result}")
 
-    source = DataSourceFactory.create("csv", filepath="sample_data.csv")
-    print(source.describe())
-    raw = source.get_raw_data()
-    print(f"Got {len(raw)} characters of raw data")
+    # source = DataSourceFactory.create("csv", filepath="sample_data.csv")
+    # print(source.describe())
+    # raw = source.get_raw_data()
+    # print(f"Got {len(raw)} characters of raw data")
