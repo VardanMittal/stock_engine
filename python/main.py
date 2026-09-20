@@ -38,7 +38,7 @@ def get_stock_data(source_type: str, **source_kwargs):
 
 
 if __name__ == "__main__":
-    data = get_stock_data("api", url="https://example.com/data.csv")
+    data = get_stock_data("yfinance", ticker="RELIANCE.NS", period="1mo")
     closes = [float(row["close"]) for row in data]
 
     indicators = [
@@ -79,8 +79,3 @@ if __name__ == "__main__":
     result = analysis.analyze(closes, strategy)
 
     logger.log(f"Backtest result: {result}")
-
-    # source = DataSourceFactory.create("csv", filepath="sample_data.csv")
-    # print(source.describe())
-    # raw = source.get_raw_data()
-    # print(f"Got {len(raw)} characters of raw data")

@@ -33,7 +33,7 @@
 | Pattern          | Est. Days | Project Mapping                                | Status |
 | ---------------- | --------- | ---------------------------------------------- | ------ |
 | Singleton        | 1         | Config/logger manager, DB connection pool      | ☑      |
-| Factory Method   | 3         | `DataSource` objects (NSE API, CSV, yfinance)  | ☑ ☑ ☐  |
+| Factory Method   | 3         | `DataSource` objects (NSE API, CSV, yfinance)  | ☑ ☑ ☑  |
 | Abstract Factory | 3         | Indicator calculator families (Trend/Momentum) | ☐ ☐ ☐  |
 | Builder          | 3         | `BacktestConfig` step-by-step construction     | ☐ ☐ ☐  |
 | Prototype        | 1         | Clone `Portfolio` state for what-if simulation | ☐      |
@@ -111,6 +111,7 @@ _Fill in after each session. Keep entries short — 2-3 lines max._
 | Sept 17           | Singleton         | Config/logger would've been re-instantiated (re-parsing files, inconsistent log state) every time a module needed them           | python/config.py, python/logger.py                                                                                                                  | Singleton introduces global state — fine here since config/logging are genuinely global concerns, but don't reach for it for things like Portfolio or Strategy, where you actually want multiple independent instances |
 | Sept 18 (Day 1/3) | Factory Method    | Choosing CSV vs API vs yfinance source would've meant if/elif scattered wherever data gets fetched                               | python/ingestion/data_source.py, csv_source.py, api_source.py, factory.py                                                                           | The if/elif didn't vanish — it's contained to factory.py only. That containment, not elimination of branching, is the actual point of the pattern                                                                      |
 | Sept 19 (Day 2/3) | Factory Method    | get_stock_data() was hardcoded to CSV via DataFetcher; switching source meant editing the function itself                        | python/main.py's get_stock_data() now calls DataSourceFactory.create() instead of a concrete fetcher                                                | Retired fetcher.py entirely — DataSource implementations absorbed its responsibility. Two abstractions doing the same job is a smell, not redundancy worth keeping "just in case"                                      |
+| Sept 20 (Day 3/3) | Factory Method    | Adding a real data source (yfinance) proved zero edits needed outside the factory                                                | python/ingestion/yfinance_source.py + one line in factory.py                                                                                        | yfinance returns a DataFrame, not text — the format conversion (to_csv()) is hidden inside the source itself, exactly where source-specific quirks belong, never leaking into DataParser                               |
 
 ## Notes
 
