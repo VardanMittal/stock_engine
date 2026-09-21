@@ -9,6 +9,8 @@ from strategies.lstm_stub import LSTMStrategy
 from engine_bridge.analysis_engine import AnalysisEngine
 from engine_bridge.stub_engine import StubEngine
 from ingestion.factory import DataSourceFactory
+from indicators.trend_factory import TrendIndicatorFactory
+from indicators.momentum_factory import MomentumIndicatorFactory
 
 from config import Config
 from logger import Logger
@@ -79,3 +81,10 @@ if __name__ == "__main__":
     result = analysis.analyze(closes, strategy)
 
     logger.log(f"Backtest result: {result}")
+
+
+    for factory in [TrendIndicatorFactory(), MomentumIndicatorFactory()]:
+        primary = factory.create_primary()
+        secondary = factory.create_secondary()
+        print(f"{type(factory).__name__}: {primary.name()}={primary.calculate(closes):.2f}, "
+              f"{secondary.name()}={secondary.calculate(closes):.2f}")
