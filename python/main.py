@@ -11,6 +11,7 @@ from engine_bridge.stub_engine import StubEngine
 from ingestion.factory import DataSourceFactory
 from indicators.trend_factory import TrendIndicatorFactory
 from indicators.momentum_factory import MomentumIndicatorFactory
+from strategies.combined_strategy import CombinedIndicatorStrategy
 
 from config import Config
 from logger import Logger
@@ -40,8 +41,12 @@ def get_stock_data(source_type: str, **source_kwargs):
 
 
 if __name__ == "__main__":
-    data = get_stock_data("yfinance", ticker="RELIANCE.NS", period="1mo")
-    closes = [float(row["close"]) for row in data]
+    data = get_stock_data("yfinance", ticker="RELIANCE.NS", period="3mo")
+    valid_data = [
+    row for row in data
+    if row.get("close", "").strip()
+    ]
+    closes = [float(row["close"]) for row in valid_data]
 
     indicators = [
         SimpleMovingAverage(window=3),
@@ -82,9 +87,16 @@ if __name__ == "__main__":
 
     logger.log(f"Backtest result: {result}")
 
+    combined_strategy = CombinedIndicatorStrategy(
+        trend_factory=TrendIndicatorFactory(),
+        momentum_factory=MomentumIndicatorFactory()
+    )
 
-    for factory in [TrendIndicatorFactory(), MomentumIndicatorFactory()]:
-        primary = factory.create_primary()
-        secondary = factory.create_secondary()
-        print(f"{type(factory).__name__}: {primary.name()}={primary.calculate(closes):.2f}, "
-              f"{secondary.name()}={secondary.calculate(closes):.2f}")
+    strategies = [
+        MovingAverageCrossoverStrategy(short_window=2, long_window=3),
+        ThresholdStrategy(),
+        LSTMStrategy(),
+        combined_strategy,
+        ]
+    for strategy in strategies:
+        print(f"{strategy.name()}: {strategy.predict(closes)}")
