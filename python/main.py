@@ -12,6 +12,7 @@ from ingestion.factory import DataSourceFactory
 from indicators.trend_factory import TrendIndicatorFactory
 from indicators.momentum_factory import MomentumIndicatorFactory
 from strategies.combined_strategy import CombinedIndicatorStrategy
+from indicators.volatility_factory import VolatilityIndicatorFactory
 
 from config import Config
 from logger import Logger
@@ -100,3 +101,9 @@ if __name__ == "__main__":
         ]
     for strategy in strategies:
         print(f"{strategy.name()}: {strategy.predict(closes)}")
+
+    for factory in [TrendIndicatorFactory(), MomentumIndicatorFactory(), VolatilityIndicatorFactory()]:
+        primary = factory.create_primary()
+        secondary = factory.create_secondary()
+        print(f"{type(factory).__name__}: {primary.name()}={primary.calculate(closes):.2f}, "
+              f"{secondary.name()}={secondary.calculate(closes):.2f}")
