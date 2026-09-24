@@ -35,7 +35,7 @@
 | Singleton        | 1         | Config/logger manager, DB connection pool      | ☑      |
 | Factory Method   | 3         | `DataSource` objects (NSE API, CSV, yfinance)  | ☑ ☑ ☑  |
 | Abstract Factory | 3         | Indicator calculator families (Trend/Momentum) | ☑ ☑ ☑  |
-| Builder          | 3         | `BacktestConfig` step-by-step construction     | ☐ ☐ ☐  |
+| Builder          | 3         | `BacktestConfig` step-by-step construction     | ☑ ☐ ☐  |
 | Prototype        | 1         | Clone `Portfolio` state for what-if simulation | ☐      |
 
 ---
@@ -115,6 +115,7 @@ _Fill in after each session. Keep entries short — 2-3 lines max._
 | Sept 21 (Day 1/3) | Abstract Factory  | Indicators were instantiated ad-hoc with no grouping — no guarantee a "trend pair" or "momentum pair" was used consistently                       | python/indicators/factory_interface.py, trend_factory.py, momentum_factory.py                                                                       | Abstract Factory only earns its keep when products genuinely belong together as a family — don't force it onto indicators that have no real relationship, that's over-engineering for its own sake                                     |
 | Sept 22 (Day 2/3) | Abstract Factory  | A strategy needing "a trend + momentum pair" would've hardcoded specific indicator classes, coupling strategy logic to specific indicator choices | python/strategies/combined_strategy.py — takes both factories via constructor injection                                                             | This is Abstract Factory and DIP working together — the factory pattern supplies the family, dependency injection is how the strategy receives it without hardcoding                                                                   |
 | Sept 23 (Day 3/3) | Abstract Factory  | Adding a Volatility family proved zero edits needed to the abstract interface or existing families                                                | python/indicators/bollinger.py + volatility_factory.py                                                                                              | CombinedIndicatorStrategy happily accepted a "wrong" family (volatility as if it were momentum) with no error — Abstract Factory guarantees interchangeability, not semantic correctness. That's on you as the caller to pair sensibly |
+| Sept 24 (Day 1/3) | Builder           | BacktestConfig(...) with 5+ params (some required, some optional) would be unreadable/error-prone as a single constructor call                    | python/portfolio/backtest_config.py + backtest_config_builder.py                                                                                    | Validation lives in .build(), not in each with\_() setter — that's deliberate, since you can't validate "end date after start date" until you know both, and setters can be called in any order                                        |
 
 ## Notes
 

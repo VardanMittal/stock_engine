@@ -13,6 +13,7 @@ from indicators.trend_factory import TrendIndicatorFactory
 from indicators.momentum_factory import MomentumIndicatorFactory
 from strategies.combined_strategy import CombinedIndicatorStrategy
 from indicators.volatility_factory import VolatilityIndicatorFactory
+from portfolio.backtest_config_builder import BacktestConfigBuilder
 
 from config import Config
 from logger import Logger
@@ -107,3 +108,17 @@ if __name__ == "__main__":
         secondary = factory.create_secondary()
         print(f"{type(factory).__name__}: {primary.name()}={primary.calculate(closes):.2f}, "
               f"{secondary.name()}={secondary.calculate(closes):.2f}")
+    config_obj = (
+        BacktestConfigBuilder()
+        .with_date_range("2026-08-01", "2026-09-01")
+        .with_strategy("ma_crossover")
+        .with_capital(15000.0)
+        .build()
+    )
+    print(config_obj)
+
+    # test the validation guard - required fields missing
+    try:
+        bad_config = BacktestConfigBuilder().with_capital(5000).build()
+    except ValueError as e:
+        print(f"Caught expected error: {e}")
