@@ -43,6 +43,7 @@ def get_stock_data(source_type: str, **source_kwargs):
 
 
 if __name__ == "__main__":
+    logger = Logger()
     data = get_stock_data("yfinance", ticker="RELIANCE.NS", period="3mo")
     valid_data = [
     row for row in data
@@ -71,23 +72,9 @@ if __name__ == "__main__":
     engine = StubEngine()
     analysis = AnalysisEngine(engine)  # dependency injected here
 
-    strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
-    result = analysis.analyze(closes, strategy)
-    print(f"Backtest result: {result}")
-
     config = Config()
     config2 = Config()  # "new" instance, but actually the same object
     print(f"Same instance? {config is config2}")  # True
-
-    logger = Logger()
-    logger.log(f"Starting analysis with initial cash: {config.get('initial_cash')}")
-
-    engine = StubEngine()
-    analysis = AnalysisEngine(engine)
-    strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
-    result = analysis.analyze(closes, strategy)
-
-    logger.log(f"Backtest result: {result}")
 
     combined_strategy = CombinedIndicatorStrategy(
         trend_factory=TrendIndicatorFactory(),
@@ -113,12 +100,12 @@ if __name__ == "__main__":
         .with_date_range("2026-08-01", "2026-09-01")
         .with_strategy("ma_crossover")
         .with_capital(15000.0)
+        .with_fee(0.002)
         .build()
     )
-    print(config_obj)
+    engine = StubEngine()
+    analysis = AnalysisEngine(engine)
+    strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
+    result = analysis.analyze(closes, strategy, config_obj)
 
-    # test the validation guard - required fields missing
-    try:
-        bad_config = BacktestConfigBuilder().with_capital(5000).build()
-    except ValueError as e:
-        print(f"Caught expected error: {e}")
+    logger.log(f"Backtest result: {result}")
