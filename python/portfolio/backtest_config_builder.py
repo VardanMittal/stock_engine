@@ -1,4 +1,5 @@
 from portfolio.backtest_config import BacktestConfig
+from datetime import datetime
 
 class BacktestConfigBuilder:
     """Step-by-step construction of BacktestConfig. Required fields
@@ -34,6 +35,17 @@ class BacktestConfigBuilder:
             raise ValueError("Date range is required — call with_date_range()")
         if self._strategy_name is None:
             raise ValueError("Strategy is required — call with_strategy()")
+        
+        start = datetime.strptime(self._start_date, "%Y-%m-%d")
+        end = datetime.strptime(self._end_date, "%Y-%m-%d")
+        if end <= start:
+            raise ValueError(f"end_date ({self._end_date}) must be after start_date ({self._start_date})")
+
+        if not (0.0 <= self._fee_pct < 1.0):
+            raise ValueError(f"fee_pct must be between 0 and 1, got {self._fee_pct}")
+
+        if self._initial_capital <= 0:
+            raise ValueError(f"initial_capital must be positive, got {self._initial_capital}")
 
         return BacktestConfig(
             start_date=self._start_date,

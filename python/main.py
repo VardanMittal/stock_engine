@@ -109,3 +109,18 @@ if __name__ == "__main__":
     result = analysis.analyze(closes, strategy, config_obj)
 
     logger.log(f"Backtest result: {result}")
+
+    test_cases = [
+        {"desc": "end before start", "fn": lambda: BacktestConfigBuilder()
+            .with_date_range("2026-09-01", "2026-08-01").with_strategy("x").build()},
+        {"desc": "fee out of range", "fn": lambda: BacktestConfigBuilder()
+            .with_date_range("2026-08-01", "2026-09-01").with_strategy("x").with_fee(1.5).build()},
+        {"desc": "negative capital", "fn": lambda: BacktestConfigBuilder()
+            .with_date_range("2026-08-01", "2026-09-01").with_strategy("x").with_capital(-500).build()},
+    ]
+    for case in test_cases:
+        try:
+            case["fn"]()
+            print(f"{case['desc']}: NO ERROR RAISED (bug!)")
+        except ValueError as e:
+            print(f"{case['desc']}: correctly caught — {e}")
