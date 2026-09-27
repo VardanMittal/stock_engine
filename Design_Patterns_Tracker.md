@@ -36,7 +36,7 @@
 | Factory Method   | 3         | `DataSource` objects (NSE API, CSV, yfinance)  | ☑ ☑ ☑  |
 | Abstract Factory | 3         | Indicator calculator families (Trend/Momentum) | ☑ ☑ ☑  |
 | Builder          | 3         | `BacktestConfig` step-by-step construction     | ☑ ☑ ☑  |
-| Prototype        | 1         | Clone `Portfolio` state for what-if simulation | ☐      |
+| Prototype        | 1         | Clone `Portfolio` state for what-if simulation | ☑      |
 
 ---
 
@@ -118,6 +118,7 @@ _Fill in after each session. Keep entries short — 2-3 lines max._
 | Sept 24 (Day 1/3) | Builder           | BacktestConfig(...) with 5+ params (some required, some optional) would be unreadable/error-prone as a single constructor call                                        | python/portfolio/backtest_config.py + backtest_config_builder.py                                                                                    | Validation lives in .build(), not in each with\_() setter — that's deliberate, since you can't validate "end date after start date" until you know both, and setters can be called in any order                                                                            |
 | Sept 25 (Day 2/3) | Builder           | StubEngine had hardcoded starting cash with no way to vary capital/fees per run                                                                                       | engine_bridge/interface.py, stub_engine.py, analysis_engine.py now all thread BacktestConfig through                                                | Changing BacktestEngine.run()'s signature to add config is technically an interface-breaking change — fine here since we control every implementer (just StubEngine so far), but worth remembering this gets riskier once a real C++ adapter also implements it in Phase 2 |
 | Sept 26 (Day 3/3) | Builder           | Individual setters couldn't validate rules spanning multiple fields (date ordering); scattering partial checks across setters would've meant inconsistent enforcement | backtest_config_builder.py's build() — presence + cross-field + range checks all centralized                                                        | datetime.strptime will itself raise if the date string is malformed (e.g. wrong format) — that's an uncaught exception surfacing before your own ValueErrors even run, worth knowing if you ever wrap this in a UI later                                                   |
+| Sept 27           | Prototype         | Testing a what-if trade sequence needed an independent copy of portfolio state without rebuilding it from scratch or risking shared mutable state                     | python/portfolio/portfolio.py's clone() method using copy.deepcopy()                                                                                | Shallow copy (copy.copy) would've silently shared trade_history between original and clone — worth remembering this distinction any time an object holds nested lists/dicts and needs cloning                                                                              |
 
 ## Notes
 

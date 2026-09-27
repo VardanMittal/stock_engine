@@ -14,6 +14,7 @@ from indicators.momentum_factory import MomentumIndicatorFactory
 from strategies.combined_strategy import CombinedIndicatorStrategy
 from indicators.volatility_factory import VolatilityIndicatorFactory
 from portfolio.backtest_config_builder import BacktestConfigBuilder
+from portfolio.portfolio import Portfolio
 
 from config import Config
 from logger import Logger
@@ -124,3 +125,15 @@ if __name__ == "__main__":
             print(f"{case['desc']}: NO ERROR RAISED (bug!)")
         except ValueError as e:
             print(f"{case['desc']}: correctly caught — {e}")
+
+    real_portfolio = Portfolio(cash=10000.0)
+    real_portfolio.buy(price=150.0, num_shares=10)
+    real_portfolio.buy(price=155.0, num_shares=5)
+    print(f"Real portfolio: {real_portfolio}")
+
+    whatif_portfolio = real_portfolio.clone()
+    whatif_portfolio.sell(price=160.0, num_shares=15)  # sell everything in the WHAT-IF branch
+
+    print(f"Real portfolio (unchanged):  {real_portfolio}")
+    print(f"What-if portfolio (modified): {whatif_portfolio}")
+    print(f"Same trade_history object? {real_portfolio.trade_history is whatif_portfolio.trade_history}")
