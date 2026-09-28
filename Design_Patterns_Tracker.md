@@ -44,7 +44,7 @@
 
 | Pattern   | Est. Days | Project Mapping                                                | Status |
 | --------- | --------- | -------------------------------------------------------------- | ------ |
-| Adapter   | 3         | Wrap C++ backtesting engine behind Python interface (pybind11) | ☐ ☐ ☐  |
+| Adapter   | 3         | Wrap C++ backtesting engine behind Python interface (pybind11) | ☑ ☐ ☐  |
 | Bridge    | 3         | Decouple prediction strategy from execution engine             | ☐ ☐ ☐  |
 | Composite | 3         | `Portfolio` → `Position` → `Trade` hierarchy                   | ☐ ☐ ☐  |
 | Decorator | 2         | Logging/caching/rate-limiting on data-fetch calls              | ☐ ☐    |
@@ -119,6 +119,7 @@ _Fill in after each session. Keep entries short — 2-3 lines max._
 | Sept 25 (Day 2/3) | Builder           | StubEngine had hardcoded starting cash with no way to vary capital/fees per run                                                                                       | engine_bridge/interface.py, stub_engine.py, analysis_engine.py now all thread BacktestConfig through                                                | Changing BacktestEngine.run()'s signature to add config is technically an interface-breaking change — fine here since we control every implementer (just StubEngine so far), but worth remembering this gets riskier once a real C++ adapter also implements it in Phase 2 |
 | Sept 26 (Day 3/3) | Builder           | Individual setters couldn't validate rules spanning multiple fields (date ordering); scattering partial checks across setters would've meant inconsistent enforcement | backtest_config_builder.py's build() — presence + cross-field + range checks all centralized                                                        | datetime.strptime will itself raise if the date string is malformed (e.g. wrong format) — that's an uncaught exception surfacing before your own ValueErrors even run, worth knowing if you ever wrap this in a UI later                                                   |
 | Sept 27           | Prototype         | Testing a what-if trade sequence needed an independent copy of portfolio state without rebuilding it from scratch or risking shared mutable state                     | python/portfolio/portfolio.py's clone() method using copy.deepcopy()                                                                                | Shallow copy (copy.copy) would've silently shared trade_history between original and clone — worth remembering this distinction any time an object holds nested lists/dicts and needs cloning                                                                              |
+| Sept 28 (Day 1/3) | Adapter           | C++ engine has a native interface (enum signals, param struct) that doesn't match Python's BacktestEngine contract (string signals, config object, dict result)       | cpp/include/backtester.hpp, cpp/src/backtester.cpp, built as stock_core static library                                                              | Deliberately did NOT shape the C++ API around Python's needs. The engine stays idiomatic; translation is the adapter's job, not the engine's                                                                                                                               |
 
 ## Notes
 
