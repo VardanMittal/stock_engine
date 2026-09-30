@@ -15,6 +15,7 @@ from strategies.combined_strategy import CombinedIndicatorStrategy
 from indicators.volatility_factory import VolatilityIndicatorFactory
 from portfolio.backtest_config_builder import BacktestConfigBuilder
 from portfolio.portfolio import Portfolio
+from engine_bridge.cpp_engine import CppEngine
 
 from config import Config
 from logger import Logger
@@ -104,7 +105,7 @@ if __name__ == "__main__":
         .with_fee(0.002)
         .build()
     )
-    engine = StubEngine()
+    engine = CppEngine()
     analysis = AnalysisEngine(engine)
     strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
     result = analysis.analyze(closes, strategy, config_obj)

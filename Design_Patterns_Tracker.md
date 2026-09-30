@@ -44,7 +44,7 @@
 
 | Pattern   | Est. Days | Project Mapping                                                | Status |
 | --------- | --------- | -------------------------------------------------------------- | ------ |
-| Adapter   | 3         | Wrap C++ backtesting engine behind Python interface (pybind11) | ☑ ☑ ☐  |
+| Adapter   | 3         | Wrap C++ backtesting engine behind Python interface (pybind11) | ☑ ☑ ☑  |
 | Bridge    | 3         | Decouple prediction strategy from execution engine             | ☐ ☐ ☐  |
 | Composite | 3         | `Portfolio` → `Position` → `Trade` hierarchy                   | ☐ ☐ ☐  |
 | Decorator | 2         | Logging/caching/rate-limiting on data-fetch calls              | ☐ ☐    |
@@ -121,6 +121,7 @@ _Fill in after each session. Keep entries short — 2-3 lines max._
 | Sept 27           | Prototype         | Testing a what-if trade sequence needed an independent copy of portfolio state without rebuilding it from scratch or risking shared mutable state                     | python/portfolio/portfolio.py's clone() method using copy.deepcopy()                                                                                | Shallow copy (copy.copy) would've silently shared trade_history between original and clone — worth remembering this distinction any time an object holds nested lists/dicts and needs cloning                                                                                                    |
 | Sept 28 (Day 1/3) | Adapter           | C++ engine has a native interface (enum signals, param struct) that doesn't match Python's BacktestEngine contract (string signals, config object, dict result)       | cpp/include/backtester.hpp, cpp/src/backtester.cpp, built as stock_core static library                                                              | Deliberately did NOT shape the C++ API around Python's needs. The engine stays idiomatic; translation is the adapter's job, not the engine's                                                                                                                                                     |
 | Sept 29 (Day 2/3) | Adapter           | Python couldn't call the C++ engine at all; needed a binding layer before any interface translation is possible                                                       | cpp/bindings/bindings.cpp builds stock_native.pyd into python/engine_bridge/                                                                        | Bindings expose the native API unchanged (enum signals, params struct). pybind11 handles type/exception conversion, but semantic translation (strings to enums, BacktestConfig to params) is still the adapter's job. On Windows, MinGW .pyd files need static-linked runtime or DLL load failed |
+| Sept 30 (Day 3/3) | Adapter           | AnalysisEngine expects strings/dict/BacktestConfig; the C++ engine speaks enums/struct/BacktestParams — incompatible without a translator                             | python/engine_bridge/cpp_engine.py's CppEngine(BacktestEngine)                                                                                      |
 
 ## Notes
 
