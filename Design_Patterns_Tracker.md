@@ -45,7 +45,7 @@
 | Pattern   | Est. Days | Project Mapping                                                | Status |
 | --------- | --------- | -------------------------------------------------------------- | ------ |
 | Adapter   | 3         | Wrap C++ backtesting engine behind Python interface (pybind11) | ☑ ☑ ☑  |
-| Bridge    | 3         | Decouple prediction strategy from execution engine             | ☐ ☐ ☐  |
+| Bridge    | 1         | Decouple prediction strategy from execution engine             | ☑      |
 | Composite | 3         | `Portfolio` → `Position` → `Trade` hierarchy                   | ☐ ☐ ☐  |
 | Decorator | 2         | Logging/caching/rate-limiting on data-fetch calls              | ☐ ☐    |
 | Facade    | 2         | `AnalysisEngine.run(ticker)` hiding RAG+indicators+engine      | ☐ ☐    |
@@ -122,6 +122,7 @@ _Fill in after each session. Keep entries short — 2-3 lines max._
 | Sept 28 (Day 1/3) | Adapter           | C++ engine has a native interface (enum signals, param struct) that doesn't match Python's BacktestEngine contract (string signals, config object, dict result)       | cpp/include/backtester.hpp, cpp/src/backtester.cpp, built as stock_core static library                                                              | Deliberately did NOT shape the C++ API around Python's needs. The engine stays idiomatic; translation is the adapter's job, not the engine's                                                                                                                                                     |
 | Sept 29 (Day 2/3) | Adapter           | Python couldn't call the C++ engine at all; needed a binding layer before any interface translation is possible                                                       | cpp/bindings/bindings.cpp builds stock_native.pyd into python/engine_bridge/                                                                        | Bindings expose the native API unchanged (enum signals, params struct). pybind11 handles type/exception conversion, but semantic translation (strings to enums, BacktestConfig to params) is still the adapter's job. On Windows, MinGW .pyd files need static-linked runtime or DLL load failed |
 | Sept 30 (Day 3/3) | Adapter           | AnalysisEngine expects strings/dict/BacktestConfig; the C++ engine speaks enums/struct/BacktestParams — incompatible without a translator                             | python/engine_bridge/cpp_engine.py's CppEngine(BacktestEngine)                                                                                      |
+| Oct 1             | Bridge            | Strategy and execution-mode variations would multiply combinatorially (N strategies × M modes) if tangled via inheritance                                             | python/strategies/execution_mode.py (implementation hierarchy) + strategy_runner.py (abstraction, holds ExecutionMode via composition)              | The composition in StrategyRunner.**init** (holding a reference, not inheriting) is the actual bridge — if StrategyRunner had inherited from ExecutionMode instead, we'd be back to the N×M explosion Bridge exists to prevent                                                                   |
 
 ## Notes
 

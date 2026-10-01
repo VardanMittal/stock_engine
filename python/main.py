@@ -16,6 +16,8 @@ from indicators.volatility_factory import VolatilityIndicatorFactory
 from portfolio.backtest_config_builder import BacktestConfigBuilder
 from portfolio.portfolio import Portfolio
 from engine_bridge.cpp_engine import CppEngine
+from strategies.execution_mode import BacktestExecutionMode, PaperTradeExecutionMode
+from strategies.strategy_runner import StrategyRunner
 
 from config import Config
 from logger import Logger
@@ -138,3 +140,16 @@ if __name__ == "__main__":
     print(f"Real portfolio (unchanged):  {real_portfolio}")
     print(f"What-if portfolio (modified): {whatif_portfolio}")
     print(f"Same trade_history object? {real_portfolio.trade_history is whatif_portfolio.trade_history}")
+
+    # Same strategy, two different execution modes — no strategy code touched
+    ma_strategy = MovingAverageCrossoverStrategy(short_window=2, long_window=3)
+
+    backtest_runner = StrategyRunner(ma_strategy, BacktestExecutionMode())
+    print(f"Backtest mode result: {backtest_runner.run(closes)}")
+
+    paper_runner = StrategyRunner(ma_strategy, PaperTradeExecutionMode())
+    print(f"Paper trade mode result: {paper_runner.run(closes)}")
+
+    # Same execution mode, different strategy — no execution code touched
+    threshold_runner = StrategyRunner(ThresholdStrategy(), BacktestExecutionMode())
+    print(f"Threshold+backtest result: {threshold_runner.run(closes)}")
